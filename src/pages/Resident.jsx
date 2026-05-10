@@ -48,7 +48,12 @@ export default function Resident() {
   };
 
   const latestAlert = alerts[0];
-  const isCritical = latestAlert && latestAlert.level === 'Critical';
+  
+  const getAlertColor = (level) => {
+    if (level === 'Critical') return 'var(--danger)';
+    if (level === 'Warning') return '#ea580c'; // Orange
+    return 'var(--primary)'; // Advisory
+  };
 
   return (
     <div className="phone-wrapper">
@@ -78,12 +83,15 @@ export default function Resident() {
           {/* Top Half: Alert Level Banner */}
           <div style={{ marginBottom: '24px' }}>
             {latestAlert ? (
-              <div style={{ padding: '16px', borderRadius: '12px', backgroundColor: isCritical ? 'var(--danger)' : 'var(--primary)', color: 'white', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }} className={isCritical ? 'animate-pulse-danger' : ''}>
+              <div style={{ padding: '16px', borderRadius: '12px', backgroundColor: getAlertColor(latestAlert.level), color: 'white', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }} className={latestAlert.level === 'Critical' ? 'animate-pulse-danger' : ''}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                   <Bell size={20} />
                   <h3 style={{ fontSize: '1rem', margin: 0 }}>{latestAlert.level.toUpperCase()} ALERT</h3>
                 </div>
                 <p style={{ fontSize: '0.85rem', lineHeight: '1.4' }}>{latestAlert.message}</p>
+                {latestAlert.image && (
+                  <img src={latestAlert.image} alt="Alert" style={{ width: '100%', maxHeight: '180px', objectFit: 'cover', borderRadius: '8px', marginTop: '12px', border: '1px solid rgba(255,255,255,0.2)' }} />
+                )}
               </div>
             ) : (
               <div style={{ padding: '16px', borderRadius: '12px', backgroundColor: 'var(--safe)', color: 'white' }}>

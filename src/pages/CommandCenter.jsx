@@ -5,12 +5,14 @@ import { ShieldCheck, Users, AlertTriangle, CheckCircle, Radio, MapPin, Upload, 
 import Map from '../components/Map';
 
 export default function CommandCenter() {
-  const { residents, vaultLogs, broadcastAlert, addVaultLog, auth, logout } = useAppContext();
+  const { residents, vaultLogs, alerts, broadcastAlert, addVaultLog, auth, logout } = useAppContext();
   const navigate = useNavigate();
   
   const [activeTab, setActiveTab] = useState('DASHBOARD'); // DASHBOARD, VAULT, DIRECTORIES
   const [alertMessage, setAlertMessage] = useState('');
   const [alertLevel, setAlertLevel] = useState('Advisory');
+  const [alertImage, setAlertImage] = useState(null);
+  const [toast, setToast] = useState(null);
 
   const [newOfficialName, setNewOfficialName] = useState('');
   const [newOfficialRole, setNewOfficialRole] = useState('Responder');
@@ -35,9 +37,21 @@ export default function CommandCenter() {
     broadcastAlert({
       message: alertMessage,
       level: alertLevel,
-      author: 'Super Admin'
+      author: 'Super Admin',
+      image: alertImage
     });
     setAlertMessage('');
+    setAlertImage(null);
+    setToast({ title: 'Broadcast Sent', message: `Alert level ${alertLevel} sent to all users.` });
+    setTimeout(() => setToast(null), 4000);
+  };
+
+  const handleAlertImageChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (event) => setAlertImage(event.target.result);
+      reader.readAsDataURL(e.target.files[0]);
+    }
   };
 
   const handleFileChange = (e) => {
@@ -182,13 +196,49 @@ export default function CommandCenter() {
                   className="input-field" 
                   rows="4" 
                   placeholder="Enter verified advisory..."
-                  style={{ marginBottom: '24px', resize: 'vertical' }}
+                  style={{ marginBottom: '16px', resize: 'vertical' }}
                 ></textarea>
+
+                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '8px', color: 'var(--text-muted)', fontWeight: 'bold' }}>Attach Image (Optional)</label>
+                <div style={{ border: '1px dashed #cbd5e1', padding: '12px', borderRadius: '8px', textAlign: 'center', backgroundColor: '#f8fafc', marginBottom: '24px' }}>
+                  <input type="file" id="alert-img-upload" style={{ display: 'none' }} onChange={handleAlertImageChange} accept="image/*" />
+                  <label htmlFor="alert-img-upload" style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                    <Upload size={20} color="var(--primary)" />
+                    {alertImage ? (
+                      <span style={{ color: 'var(--safe)', fontSize: '0.85rem', fontWeight: 'bold' }}>Image Attached</span>
+                    ) : (
+                      <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Click to upload photo</span>
+                    )}
+                  </label>
+                </div>
                 
                 <button type="submit" className="btn btn-danger" style={{ width: '100%' }}>
                   <Radio size={18} /> Broadcast Alert
                 </button>
               </form>
+            </div>
+
+            {/* Recent Alerts List */}
+            <div className="glass-panel" style={{ padding: '24px', flex: 1, overflowY: 'auto' }}>
+              <h2 style={{ fontSize: '1.1rem', marginBottom: '16px', color: 'var(--text-main)', margin: '0 0 16px 0' }}>Recent Broadcasts</h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {alerts.length === 0 ? (
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>No active broadcasts.</p>
+                ) : (
+                  alerts.slice(0, 5).map(alert => (
+                    <div key={alert.id} style={{ padding: '12px', borderRadius: '8px', backgroundColor: alert.level === 'Critical' ? '#fef2f2' : alert.level === 'Warning' ? '#fffbeb' : '#f0fdf4', borderLeft: `4px solid ${alert.level === 'Critical' ? 'var(--danger)' : alert.level === 'Warning' ? '#f59e0b' : 'var(--safe)'}` }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                        <strong style={{ fontSize: '0.9rem', color: alert.level === 'Critical' ? 'var(--danger)' : 'var(--text-main)' }}>{alert.level.toUpperCase()}</strong>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{new Date(alert.timestamp).toLocaleTimeString()}</span>
+                      </div>
+                      <p style={{ fontSize: '0.85rem', color: 'var(--text-main)', margin: 0, marginBottom: alert.image ? '8px' : '0' }}>{alert.message}</p>
+                      {alert.image && (
+                        <img src={alert.image} alt="Alert Attachment" style={{ width: '100%', maxHeight: '150px', objectFit: 'cover', borderRadius: '6px' }} />
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           </div>
 
@@ -359,6 +409,17 @@ export default function CommandCenter() {
             </div>
           </div>
 
+        </div>
+      )}
+
+      {/* Toast Notification Overlay */}
+      {toast && (
+        <div className="animate-slide-in" style={{ position: 'fixed', bottom: '24px', right: '24px', backgroundColor: 'var(--safe)', color: 'white', padding: '16px', borderRadius: '12px', zIndex: 1000, boxShadow: '0 10px 25px -5px var(--safe-glow)', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+          <CheckCircle size={24} style={{ flexShrink: 0 }} />
+          <div>
+            <h4 style={{ margin: '0 0 4px 0', fontSize: '1rem' }}>{toast.title}</h4>
+            <p style={{ margin: 0, fontSize: '0.85rem', opacity: 0.9 }}>{toast.message}</p>
+          </div>
         </div>
       )}
 

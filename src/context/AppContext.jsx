@@ -53,6 +53,62 @@ export const AppProvider = ({ children }) => {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
+  // Simulate real-time movement
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setResidents(prev => {
+        if (!prev || prev.length === 0) return prev;
+        const updated = prev.map(r => {
+          // Move SAFE or UNREPORTED residents slightly to simulate walking/driving
+          // Also slightly move NEEDS_HELP if they are not trapped, but for now we move SAFE/UNREPORTED
+          if (r.status === 'SAFE' || r.status === 'UNREPORTED') {
+            return {
+              ...r,
+              lat: r.lat + (Math.random() * 0.0002 - 0.0001),
+              lng: r.lng + (Math.random() * 0.0002 - 0.0001)
+            };
+          }
+          return r;
+        });
+        localStorage.setItem('bc_residents', JSON.stringify(updated));
+        return updated;
+      });
+    }, 3000); // Update every 3 seconds for real-time feel
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Real-time GPS Tracking for active user
+  useEffect(() => {
+    if (!auth) return;
+    
+    // Check if the browser supports geolocation
+    if ('geolocation' in navigator) {
+      const watchId = navigator.geolocation.watchPosition(
+        (position) => {
+          setResidents(prev => {
+            const updated = prev.map(r => {
+              if (r.id === auth.id) {
+                return {
+                  ...r,
+                  lat: position.coords.latitude,
+                  lng: position.coords.longitude
+                };
+              }
+              return r;
+            });
+            localStorage.setItem('bc_residents', JSON.stringify(updated));
+            return updated;
+          });
+        },
+        (error) => console.warn('GPS tracking error:', error),
+        { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
+      );
+      
+      return () => navigator.geolocation.clearWatch(watchId);
+    }
+  }, [auth]);
+
   const loginResident = (name, address, vulnerability) => {
     const newId = 'res_' + Date.now();
     const newResident = {
