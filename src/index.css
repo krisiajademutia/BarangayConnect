@@ -20,6 +20,10 @@
   --safe-glow: rgba(22, 163, 74, 0.3);
   --safe-bg: rgba(22, 163, 74, 0.1);
   
+  /* BarangayConnect Brand Colors */
+  --barangay-blue: #2F679B;
+  --connect-red: #FF6B7A;
+  
   /* Text Colors for Light Theme */
   --text-main: #0f172a;
   --text-muted: #64748b;
@@ -109,15 +113,17 @@ h1, h2, h3, h4 {
 }
 .btn-primary:hover { background-color: #1e40af; }
 
-/* Micro-animations */
+/* Enhanced Micro-animations */
 @keyframes pulse {
   0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(211, 48, 51, 0.5); }
   70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(211, 48, 51, 0); }
   100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(211, 48, 51, 0); }
 }
 
-.animate-pulse-danger {
-  animation: pulse 2s infinite;
+@keyframes pulse-live {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.1); }
+  100% { opacity: 1; transform: scale(1); }
 }
 
 @keyframes slideIn {
@@ -125,30 +131,68 @@ h1, h2, h3, h4 {
   to { transform: translateY(0); opacity: 1; }
 }
 
+@keyframes slideInFromRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeInScale {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+
+.animate-pulse-danger {
+  animation: pulse 2s infinite;
+}
+
 .animate-slide-in {
   animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Device Simulator / Phone UI */
+.animate-slide-in-right {
+  animation: slideInFromRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in-scale {
+  animation: fadeInScale 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.shimmer-effect {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  background-size: 200px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Enhanced Device Simulator / Phone UI with Blue Background */
 .phone-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  padding: 40px 20px;
+  padding: 10px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-sizing: border-box;
 }
 
 .phone-frame {
-  width: 100%;
-  max-width: 414px; 
-  height: 850px;
-  max-height: 90vh;
-  background-color: #f8fafc; /* Changed to match light theme inside the phone */
+  width: 375px;
+  height: 812px;
+  max-width: 95vw;
+  max-height: 95vh;
+  background: linear-gradient(145deg, #f8fafc, #e2e8f0);
   border-radius: 40px;
-  border: 12px solid #cbd5e1; /* Silver bezel */
+  border: 6px solid #1e293b;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2), inset 0 0 0 2px rgba(255,255,255,0.5);
+  box-shadow: 
+    0 25px 60px -10px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255,255,255,0.1),
+    inset 0 1px 0 rgba(255,255,255,0.6);
   display: flex;
   flex-direction: column;
 }
@@ -159,20 +203,34 @@ h1, h2, h3, h4 {
   left: 50%;
   transform: translateX(-50%);
   width: 150px;
-  height: 30px;
-  background-color: #cbd5e1;
+  height: 28px;
+  background: linear-gradient(145deg, #334155, #1e293b);
   border-bottom-left-radius: 20px;
   border-bottom-right-radius: 20px;
   z-index: 50;
+  box-shadow: inset 0 -2px 4px rgba(0,0,0,0.3);
+}
+
+.phone-notch::before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 3px;
+  background: #64748b;
+  border-radius: 2px;
 }
 
 .phone-screen {
   flex: 1;
   overflow-y: auto;
-  padding: 40px 20px 20px 20px; 
+  padding: 35px 16px 16px 16px; 
   display: flex;
   flex-direction: column;
   position: relative;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
 }
 
 /* Layouts */

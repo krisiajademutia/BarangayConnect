@@ -53,19 +53,33 @@ export const AppProvider = ({ children }) => {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  // Simulate real-time movement
+  // Enhanced real-time movement simulation with more realistic patterns
   useEffect(() => {
     const interval = setInterval(() => {
       setResidents(prev => {
         if (!prev || prev.length === 0) return prev;
         const updated = prev.map(r => {
-          // Move SAFE or UNREPORTED residents slightly to simulate walking/driving
-          // Also slightly move NEEDS_HELP if they are not trapped, but for now we move SAFE/UNREPORTED
+          // More realistic movement patterns
           if (r.status === 'SAFE' || r.status === 'UNREPORTED') {
+            // Simulate walking/driving with directional movement
+            const movementSpeed = 0.00015; // Slightly faster movement
+            const direction = Math.random() * 2 * Math.PI;
+            const distance = Math.random() * movementSpeed;
+            
             return {
               ...r,
-              lat: r.lat + (Math.random() * 0.0002 - 0.0001),
-              lng: r.lng + (Math.random() * 0.0002 - 0.0001)
+              lat: r.lat + Math.cos(direction) * distance,
+              lng: r.lng + Math.sin(direction) * distance,
+              lastUpdate: new Date().toISOString()
+            };
+          }
+          // SOS residents might have slight movement (not completely stationary)
+          else if (r.status === 'NEEDS_HELP') {
+            return {
+              ...r,
+              lat: r.lat + (Math.random() * 0.00005 - 0.000025), // Very slight movement
+              lng: r.lng + (Math.random() * 0.00005 - 0.000025),
+              lastUpdate: new Date().toISOString()
             };
           }
           return r;
@@ -73,7 +87,7 @@ export const AppProvider = ({ children }) => {
         localStorage.setItem('bc_residents', JSON.stringify(updated));
         return updated;
       });
-    }, 3000); // Update every 3 seconds for real-time feel
+    }, 2000); // Update every 2 seconds for more responsive feel
 
     return () => clearInterval(interval);
   }, []);
@@ -133,9 +147,12 @@ export const AppProvider = ({ children }) => {
   };
 
   const loginResponder = (responderId) => {
-    // Check if responder is actually in vaultLogs, else use dummy data for prototype
-    const vaultEntry = vaultLogs.find(log => log.idFile.includes(responderId) || log.name.includes(responderId));
-    const authData = { role: 'RESPONDER', id: responderId, name: vaultEntry ? vaultEntry.name : `Responder ${responderId}` };
+    // Check if responder ID exists in vaultLogs (personnel directory)
+    const vaultEntry = vaultLogs.find(log => log.id.toString() === responderId.toString());
+    if (!vaultEntry) {
+      throw new Error('Invalid responder ID. Please check your credentials.');
+    }
+    const authData = { role: 'RESPONDER', id: responderId, name: vaultEntry.name, personnelData: vaultEntry };
     setAuth(authData);
     sessionStorage.setItem('bc_auth', JSON.stringify(authData));
   };
@@ -155,6 +172,20 @@ export const AppProvider = ({ children }) => {
     const newAlerts = [{ id: Date.now().toString(), timestamp: new Date().toISOString(), ...alert }, ...alerts];
     setAlerts(newAlerts);
     localStorage.setItem('bc_alerts', JSON.stringify(newAlerts));
+  };
+
+  const editAlert = (alertId, updatedAlert) => {
+    const updated = alerts.map(alert => 
+      alert.id === alertId ? { ...alert, ...updatedAlert, timestamp: new Date().toISOString() } : alert
+    );
+    setAlerts(updated);
+    localStorage.setItem('bc_alerts', JSON.stringify(updated));
+  };
+
+  const deleteAlert = (alertId) => {
+    const updated = alerts.filter(alert => alert.id !== alertId);
+    setAlerts(updated);
+    localStorage.setItem('bc_alerts', JSON.stringify(updated));
   };
 
   const addVaultLog = (log) => {
@@ -191,6 +222,8 @@ export const AppProvider = ({ children }) => {
       loginAdmin,
       logout,
       broadcastAlert,
+      editAlert,
+      deleteAlert,
       addVaultLog,
       updateResidentStatus
     }}>

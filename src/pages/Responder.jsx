@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
-import { Car, Navigation, CheckCircle, Clock, Map as MapIcon, List, Bell, AlertTriangle } from 'lucide-react';
+import { Car, Navigation, CheckCircle, Clock, Map as MapIcon, List, Bell, AlertTriangle, Maximize2, Minimize2 } from 'lucide-react';
 import Map from '../components/Map';
+import BarangayConnectLogo from '../components/BarangayConnectLogo';
 
 export default function Responder() {
   const { residents, alerts, updateResidentStatus, auth, logout } = useAppContext();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('SOS'); 
   const [viewMode, setViewMode] = useState('LIST'); 
+  const [showFullMap, setShowFullMap] = useState(false);
   const [toast, setToast] = useState(null);
   
   useEffect(() => {
@@ -56,19 +58,100 @@ export default function Responder() {
     return 'var(--primary)';
   };
 
+  // Full Screen Map Modal for Responders
+  if (showFullMap) {
+    return (
+      <div className="phone-wrapper">
+        <div className="phone-frame">
+          <div className="phone-notch"></div>
+          <div className="phone-screen" style={{ padding: '0', position: 'relative' }}>
+            <div style={{
+              position: 'absolute',
+              top: '0',
+              left: '0',
+              right: '0',
+              zIndex: 1000,
+              background: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(10px)',
+              padding: '16px 20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              borderBottom: '1px solid rgba(0, 0, 0, 0.1)'
+            }}>
+              <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '700', color: 'var(--danger)' }}>
+                Tactical Response Map
+              </h3>
+              <button
+                onClick={() => setShowFullMap(false)}
+                style={{
+                  background: 'rgba(100, 116, 139, 0.1)',
+                  border: '1px solid rgba(100, 116, 139, 0.2)',
+                  borderRadius: '8px',
+                  padding: '8px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+              >
+                <Minimize2 size={16} />
+              </button>
+            </div>
+            <div style={{ height: '100%', paddingTop: '60px' }}>
+              <Map showResidents={true} focusOnRedPins={true} height="100%" interactive={true} />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="phone-wrapper">
       <div className="phone-frame">
         <div className="phone-notch"></div>
         <div className="phone-screen" style={{ paddingBottom: '0' }}>
 
-          {/* Header */}
-          <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+          {/* Enhanced Header with BarangayConnect Logo */}
+          <header className="animate-slide-in" style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between', 
+            marginBottom: '20px',
+            padding: '16px 20px',
+            background: 'linear-gradient(135deg, rgba(211, 48, 51, 0.1), rgba(234, 88, 12, 0.05))',
+            borderRadius: '16px',
+            border: '1px solid rgba(211, 48, 51, 0.1)'
+          }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Car color="var(--danger)" />
-              <h2 style={{ fontSize: '1rem', margin: 0, color: 'var(--danger)' }}>Responder Dispatch</h2>
+              <BarangayConnectLogo size={32} animate={true} showText={false} />
+              <div style={{ marginLeft: '8px' }}>
+                <h2 style={{ fontSize: '1rem', margin: 0, fontWeight: '700', color: 'var(--danger)' }}>
+                  Emergency Responder
+                </h2>
+                <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', margin: 0, fontWeight: '500' }}>
+                  Tactical Unit - {auth.name}
+                </p>
+              </div>
             </div>
-            <button onClick={handleLogout} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 'bold' }}>Logout</button>
+            <button 
+              onClick={handleLogout} 
+              style={{ 
+                background: 'rgba(100, 116, 139, 0.1)', 
+                border: '1px solid rgba(100, 116, 139, 0.2)', 
+                color: 'var(--text-muted)', 
+                fontSize: '0.75rem', 
+                cursor: 'pointer', 
+                fontWeight: 'bold',
+                padding: '8px 12px',
+                borderRadius: '8px',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseOver={(e) => e.target.style.background = 'rgba(100, 116, 139, 0.2)'}
+              onMouseOut={(e) => e.target.style.background = 'rgba(100, 116, 139, 0.1)'}
+            >
+              Logout
+            </button>
           </header>
 
           {/* Alert Banner for Responders */}
@@ -119,9 +202,101 @@ export default function Responder() {
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingBottom: '24px' }}>
             
             {activeTab === 'SOS' && viewMode === 'MAP' && (
-               <div style={{ flex: 1, borderRadius: '16px', overflow: 'hidden', border: '1px solid #cbd5e1', minHeight: '300px' }}>
-                  <Map showResidents={true} focusOnRedPins={true} interactive={true} height="100%" />
-               </div>
+              <div style={{ 
+                background: 'white',
+                borderRadius: '12px',
+                padding: '16px',
+                border: '1px solid rgba(0, 0, 0, 0.05)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+                marginBottom: '16px'
+              }}>
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'space-between', 
+                  marginBottom: '12px' 
+                }}>
+                  <h3 style={{ 
+                    fontSize: '0.9rem', 
+                    color: 'var(--primary)', 
+                    margin: 0, 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '8px',
+                    fontWeight: '700'
+                  }}>
+                    <MapIcon size={16} color="var(--primary)" />
+                    Real-Time Safety Map
+                  </h3>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      fontSize: '0.65rem',
+                      color: 'white',
+                      background: 'var(--safe)',
+                      padding: '4px 8px',
+                      borderRadius: '12px',
+                      fontWeight: '600'
+                    }}>
+                      <div style={{
+                        width: '6px',
+                        height: '6px',
+                        borderRadius: '50%',
+                        background: 'white',
+                        animation: 'pulse-live 2s infinite'
+                      }} />
+                      LIVE GPS
+                    </div>
+                    <button
+                      onClick={() => setShowFullMap(true)}
+                      style={{
+                        background: 'rgba(47, 103, 155, 0.1)',
+                        border: '1px solid rgba(47, 103, 155, 0.2)',
+                        borderRadius: '6px',
+                        padding: '4px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center'
+                      }}
+                    >
+                      <Maximize2 size={14} color="var(--primary)" />
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Map Legend */}
+                <div style={{
+                  display: 'flex',
+                  gap: '12px',
+                  marginBottom: '8px',
+                  fontSize: '0.65rem',
+                  fontWeight: '600'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--primary)' }} />
+                    <span style={{ color: 'var(--text-muted)' }}>Evacuation Centers</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--safe)' }} />
+                    <span style={{ color: 'var(--text-muted)' }}>Safe Residents</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--danger)' }} />
+                    <span style={{ color: 'var(--text-muted)' }}>SOS Alerts</span>
+                  </div>
+                </div>
+                
+                <div style={{ 
+                  height: '200px', 
+                  borderRadius: '8px', 
+                  overflow: 'hidden',
+                  border: '1px solid rgba(0, 0, 0, 0.1)'
+                }}>
+                  <Map showResidents={true} focusOnRedPins={true} height="100%" interactive={true} />
+                </div>
+              </div>
             )}
 
             {activeTab === 'SOS' && viewMode === 'LIST' && (
@@ -218,9 +393,23 @@ export default function Responder() {
 
           </div>
 
-          {/* Toast Notification Overlay */}
+          {/* Toast Notification Overlay - Inside phone screen */}
           {toast && (
-            <div className="animate-slide-in" style={{ position: 'absolute', top: '20px', left: '20px', right: '20px', backgroundColor: 'var(--primary)', color: 'white', padding: '16px', borderRadius: '12px', zIndex: 100, boxShadow: '0 10px 25px -5px var(--primary-glow)', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+            <div className="animate-slide-in" style={{ 
+              position: 'absolute', 
+              top: '20px', 
+              left: '20px', 
+              right: '20px', 
+              backgroundColor: 'var(--primary)', 
+              color: 'white', 
+              padding: '16px', 
+              borderRadius: '12px', 
+              zIndex: 9999, 
+              boxShadow: '0 10px 25px -5px rgba(47, 103, 155, 0.4)', 
+              display: 'flex', 
+              alignItems: 'flex-start', 
+              gap: '12px' 
+            }}>
               <CheckCircle size={24} style={{ flexShrink: 0 }} />
               <div>
                 <h4 style={{ margin: '0 0 4px 0', fontSize: '1rem' }}>{toast.title}</h4>
