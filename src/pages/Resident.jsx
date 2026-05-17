@@ -186,7 +186,8 @@ export default function Resident() {
             border: '1px solid rgba(0, 0, 0, 0.05)',
             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
             marginBottom: '16px',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            flexShrink: 0
           }}>
             {/* User Info */}
             <div style={{ 
@@ -286,7 +287,7 @@ export default function Resident() {
           </div>
 
           {/* Facebook-Style Announcement Posts with Highlighting */}
-          <div style={{ marginBottom: '16px' }}>
+          <div style={{ marginBottom: '16px', flexShrink: 0 }}>
             {alerts.length > 0 ? (
               <>
                 {alerts.slice(0, 2).map((alert, index) => {
@@ -474,7 +475,8 @@ export default function Resident() {
             padding: '16px',
             border: '1px solid rgba(0, 0, 0, 0.05)',
             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
-            marginBottom: '16px'
+            marginBottom: '16px',
+            flexShrink: 0
           }}>
             <div style={{ 
               display: 'flex', 

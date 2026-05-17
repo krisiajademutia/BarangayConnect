@@ -103,6 +103,10 @@ export const AppProvider = ({ children }) => {
           setResidents(prev => {
             const updated = prev.map(r => {
               if (r.id === auth.id) {
+                // Only use real GPS if within ~5km of the barangay to prevent pins from disappearing off the map
+                const dist = Math.sqrt(Math.pow(position.coords.latitude - baseLat, 2) + Math.pow(position.coords.longitude - baseLng, 2));
+                if (dist > 0.05) return r; // Ignore real GPS if far away
+                
                 return {
                   ...r,
                   lat: position.coords.latitude,

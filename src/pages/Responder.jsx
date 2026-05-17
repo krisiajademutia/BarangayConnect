@@ -98,7 +98,7 @@ export default function Responder() {
               </button>
             </div>
             <div style={{ height: '100%', paddingTop: '60px' }}>
-              <Map showResidents={true} focusOnRedPins={true} height="100%" interactive={true} />
+              <Map showResidents={true} focusOnRedPins={false} height="100%" interactive={true} />
             </div>
           </div>
         </div>
@@ -294,7 +294,7 @@ export default function Responder() {
                   overflow: 'hidden',
                   border: '1px solid rgba(0, 0, 0, 0.1)'
                 }}>
-                  <Map showResidents={true} focusOnRedPins={true} height="100%" interactive={true} />
+                  <Map showResidents={true} focusOnRedPins={false} height="100%" interactive={true} />
                 </div>
               </div>
             )}
@@ -368,7 +368,7 @@ export default function Responder() {
                       
                       {/* Mini Map to Navigate to Victim */}
                       <div style={{ height: '220px', borderRadius: '12px', overflow: 'hidden', marginBottom: '20px', border: '1px solid #cbd5e1' }}>
-                         <Map showResidents={true} focusOnRedPins={true} height="220px" />
+                         <Map showResidents={true} focusOnRedPins={false} height="220px" />
                       </div>
 
                       <div style={{ backgroundColor: '#f1f5f9', padding: '16px', borderRadius: '12px', marginBottom: '24px', display: 'flex', gap: '12px', alignItems: 'center', border: '1px solid #e2e8f0' }}>
